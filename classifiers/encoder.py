@@ -57,7 +57,7 @@ class Classifier_ENCODER:
         model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(0.00001),
                       metrics=['accuracy'])
 
-        file_path = self.output_directory + 'best_model.hdf5'
+        file_path = self.output_directory + 'encoder.hdf5'
 
         model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=file_path,
                                                            monitor='loss', save_best_only=True)
@@ -85,7 +85,7 @@ class Classifier_ENCODER:
 
         self.model.save(self.output_directory+'last_model.hdf5')
 
-        model = keras.models.load_model(self.output_directory + 'best_model.hdf5')
+        model = keras.models.load_model(self.output_directory + 'encoder.hdf5')
 
         y_pred = model.predict(x_val)
 

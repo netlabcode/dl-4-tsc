@@ -98,7 +98,7 @@ class Classifier_INCEPTION:
         reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.5, patience=50,
                                                       min_lr=0.0001)
 
-        file_path = self.output_directory + 'best_model.hdf5'
+        file_path = self.output_directory + 'inception.hdf5'
 
         model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=file_path, monitor='loss',
                                                            save_best_only=True)
@@ -144,7 +144,7 @@ class Classifier_INCEPTION:
 
     def predict(self, x_test, y_true, x_train, y_train, y_test, return_df_metrics=True):
         start_time = time.time()
-        model_path = self.output_directory + 'best_model.hdf5'
+        model_path = self.output_directory + 'inception.hdf5'
         model = keras.models.load_model(model_path)
         y_pred = model.predict(x_test, batch_size=self.batch_size)
         if return_df_metrics:

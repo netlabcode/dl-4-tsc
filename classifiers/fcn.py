@@ -76,7 +76,7 @@ class Classifier_FCN:
 
 		self.model.save(self.output_directory+'last_model.hdf5')
 
-		model = keras.models.load_model(self.output_directory+'best_model.hdf5')
+		model = keras.models.load_model(self.output_directory+'fcn.hdf5')
 
 		y_pred = model.predict(x_val)
 
@@ -88,7 +88,7 @@ class Classifier_FCN:
 		keras.backend.clear_session()
 
 	def predict(self, x_test, y_true,x_train,y_train,y_test,return_df_metrics = True):
-		model_path = self.output_directory + 'best_model.hdf5'
+		model_path = self.output_directory + 'fcn.hdf5'
 		model = keras.models.load_model(model_path)
 		y_pred = model.predict(x_test)
 		if return_df_metrics:

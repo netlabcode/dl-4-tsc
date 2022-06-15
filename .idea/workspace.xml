@@ -2,7 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="04dbebc4-4f95-4cf3-bef6-ccfb16055e07" name="Default Changelist" comment="test">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dl-4-tsc.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dl-4-tsc.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifiers/cnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/cnn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifiers/encoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/encoder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifiers/fcn.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/fcn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifiers/inception.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/inception.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifiers/resnet.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/resnet.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,7 +40,13 @@
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.main_run">
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\apresekal\code\dl-4-tsc" />
+      <recent name="C:\Users\apresekal\code\dl-4-tsc\data" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.main_test">
     <configuration name="generate_results_csv" type="PythonConfigurationType" factoryName="Python">
       <module name="dl-4-tsc" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -78,10 +91,38 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="main_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="dl-4-tsc" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Python.generate_results_csv" />
       <item itemvalue="Python.main_run" />
+      <item itemvalue="Python.main_test" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main_test" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="ServiceViewManager">
     <option name="viewStates">
@@ -112,7 +153,7 @@
       <workItem from="1579179459209" duration="4724000" />
       <workItem from="1579522466245" duration="26000" />
       <workItem from="1655307657290" duration="265000" />
-      <workItem from="1655308984824" duration="115000" />
+      <workItem from="1655308984824" duration="1201000" />
     </task>
     <task id="LOCAL-00001" summary="test">
       <created>1655309048459</created>
@@ -121,7 +162,21 @@
       <option name="project" value="LOCAL" />
       <updated>1655309048459</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="test">
+      <created>1655309112093</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1655309112093</updated>
+    </task>
+    <task id="LOCAL-00003" summary="test">
+      <created>1655309191454</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1655309191454</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -141,6 +196,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="test" />
     <option name="LAST_COMMIT_MESSAGE" value="test" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/dl_4_tsc$main_test.coverage" NAME="main_test Coverage Results" MODIFIED="1655309594106" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="masterDetails">
     <states>

@@ -45,7 +45,7 @@ class Classifier_CNN:
         model.compile(loss='mean_squared_error', optimizer=keras.optimizers.Adam(),
                       metrics=['accuracy'])
 
-        file_path = self.output_directory + 'best_model.hdf5'
+        file_path = self.output_directory + 'cnn.hdf5'
 
         model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=file_path, monitor='loss',
                                                            save_best_only=True)
@@ -72,7 +72,7 @@ class Classifier_CNN:
 
         self.model.save(self.output_directory+'last_model.hdf5')
 
-        model = keras.models.load_model(self.output_directory + 'best_model.hdf5')
+        model = keras.models.load_model(self.output_directory + 'cnn.hdf5')
 
         y_pred = model.predict(x_val)
 
