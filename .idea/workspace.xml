@@ -113,11 +113,23 @@
       <workItem from="1579179459209" duration="4724000" />
       <workItem from="1579522466245" duration="26000" />
       <workItem from="1655307657290" duration="265000" />
+      <workItem from="1655308984824" duration="39000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="WindowStateProjectService">
     <state x="623" y="208" width="730" height="816" key="FileChooserDialogImpl" timestamp="1578659867915">
