@@ -16,6 +16,11 @@ from utils.constants import ITERATIONS
 from utils.utils import read_all_datasets
 import pandas as pd
 
+import tensorflow.keras as keras
+import tensorflow as tf
+import time
+from tensorflow.keras.callbacks import TensorBoard
+
 
 
 def fit_classifier():
@@ -36,7 +41,7 @@ def fit_classifier():
     y_true = np.argmax(y_test, axis=1)
 
     if len(x_train.shape) == 2:  # if univariate
-        # add a dimension to make it multivariate with one dimension
+        # add a dimension to make it multivariate with one dimension 
         x_train = x_train.reshape((x_train.shape[0], x_train.shape[1], 1))
         x_test = x_test.reshape((x_test.shape[0], x_test.shape[1], 1))
 
@@ -87,12 +92,53 @@ def generate_data(X, y, sequence_length=10, step=1):
         y_local.append(y[end-1])
     return np.array(X_local), np.array(y_local)
 
+def cnn(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y_train, x_test, y_test, verbose=False, build=True):
+
+    input_layer = keras.layers.Input(input_shape)
+
+    if input_shape[0] < 60:  # for italypowerondemand dataset
+        padding = 'same'
+
+    conv1 = keras.layers.Conv1D(filters=6, kernel_size=7, padding=padding, activation='sigmoid')(input_layer)
+    conv1 = keras.layers.AveragePooling1D(pool_size=3)(conv1)
+
+    conv2 = keras.layers.Conv1D(filters=12, kernel_size=7, padding=padding, activation='sigmoid')(conv1)
+    conv2 = keras.layers.AveragePooling1D(pool_size=3)(conv2)
+
+    flatten_layer = keras.layers.Flatten()(conv2)
+
+    output_layer = keras.layers.Dense(units=nb_classes, activation='sigmoid')(flatten_layer)
+
+    model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+
+    model.compile(loss='mean_squared_error', optimizer=keras.optimizers.Adam(), metrics=['accuracy'])
+
+    print(model.summary())
+
+    logs = os.path.join(output_directory, "logs/"+model_name)
+
+    callback_log = TensorBoard(
+        log_dir=logs,
+        histogram_freq=0, write_graph=True, write_grads=False, write_images=False)
+
+    history = model.fit(x=x_train, y=y_train,
+                        epochs=epoch,
+                        validation_data=(x_test, y_test),
+                        callbacks=callback_log)
+
+    model.save(output_directory+"/trained/"+model_name)
+
+
+
+
 ############################################### main
 
 data = pd.read_csv("data/creditcard-small.csv")
 output_directory = os.getcwd()
+output_directory = os.path.join(output_directory,"out")
 
-X_sequence, y = generate_data(data.loc[:, "V1":"V28"].values, data.Class)
+#X_sequence, y = generate_data(data.loc[:, "V1":"V28"].values, data.Class)
+X_sequence, y = generate_data(data.loc[:, "V1"].values, data.Class)
 
 training_size = int(len(X_sequence) * 0.7)
 x_train, y_train = X_sequence[:training_size], y[:training_size]
@@ -115,5 +161,21 @@ if len(x_train.shape) == 2:  # if univariate
 
 input_shape = x_train.shape[1:]
 
-classifier = create_classifier('mlp', input_shape, nb_classes, output_directory)
-classifier.fit(x_train, y_train, x_test, y_test, y_true)
+epoch=10
+#model_name = 'optimal-NN'
+cnn(output_directory,input_shape, nb_classes,epoch, "optimal", x_train, y_train, x_test, y_test)
+
+#classifier = create_classifier('cnn', input_shape, nb_classes, output_directory)
+#classifier.fit(x_train, y_train, x_test, y_test, y_true)
+
+# classifier = create_classifier('inception', input_shape, nb_classes, output_directory)
+# classifier.fit(x_train, y_train, x_test, y_test, y_true)
+#
+# classifier = create_classifier('resnet', input_shape, nb_classes, output_directory)
+# classifier.fit(x_train, y_train, x_test, y_test, y_true)
+#
+# classifier = create_classifier('encoder', input_shape, nb_classes, output_directory)
+# classifier.fit(x_train, y_train, x_test, y_test, y_true)
+#
+# classifier = create_classifier('fcn', input_shape, nb_classes, output_directory)
+# classifier.fit(x_train, y_train, x_test, y_test, y_true)

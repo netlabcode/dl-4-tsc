@@ -61,7 +61,7 @@ class Classifier_CNN:
 
         # x_val and y_val are only used to monitor the test loss and NOT for training
         mini_batch_size = 16
-        nb_epochs = 2000
+        nb_epochs = 10
 
         start_time = time.time()
 
@@ -84,7 +84,7 @@ class Classifier_CNN:
         keras.backend.clear_session()
 
     def predict(self, x_test,y_true,x_train,y_train,y_test,return_df_metrics = True):
-        model_path = self.output_directory + 'best_model.hdf5'
+        model_path = self.output_directory + 'cnn.hdf5'
         model = keras.models.load_model(model_path)
         y_pred = model.predict(x_test)
         if return_df_metrics:

@@ -16,6 +16,10 @@ from utils.constants import ITERATIONS
 from utils.utils import read_all_datasets
 import pandas as pd
 
+import tensorflow.keras as keras
+import tensorflow as tf
+import time
+
 
 
 def fit_classifier():
@@ -87,10 +91,34 @@ def generate_data(X, y, sequence_length=10, step=1):
         y_local.append(y[end-1])
     return np.array(X_local), np.array(y_local)
 
+def cnn(output_directory, input_shape, nb_classes, verbose=False, build=True):
+
+    input_layer = keras.layers.Input(input_shape)
+
+    if input_shape[0] < 60:  # for italypowerondemand dataset
+        padding = 'same'
+
+    conv1 = keras.layers.Conv1D(filters=6, kernel_size=7, padding=padding, activation='sigmoid')(input_layer)
+    conv1 = keras.layers.AveragePooling1D(pool_size=3)(conv1)
+
+    conv2 = keras.layers.Conv1D(filters=12, kernel_size=7, padding=padding, activation='sigmoid')(conv1)
+    conv2 = keras.layers.AveragePooling1D(pool_size=3)(conv2)
+
+    flatten_layer = keras.layers.Flatten()(conv2)
+
+    output_layer = keras.layers.Dense(units=nb_classes, activation='sigmoid')(flatten_layer)
+
+    model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+
+    model.compile(loss='mean_squared_error', optimizer=keras.optimizers.Adam(), metrics=['accuracy'])
+
+    print(model.summary())
+
 ############################################### main
 
-data = pd.read_csv("data/creditcard.csv")
+data = pd.read_csv("data/creditcard-small-2.csv")
 output_directory = os.getcwd()
+output_directory = os.path.join(output_directory,"out")
 
 X_sequence, y = generate_data(data.loc[:, "V1":"V28"].values, data.Class)
 
@@ -115,17 +143,17 @@ if len(x_train.shape) == 2:  # if univariate
 
 input_shape = x_train.shape[1:]
 
-classifier = create_classifier('inception', input_shape, nb_classes, output_directory)
-classifier.fit(x_train, y_train, x_test, y_test, y_true)
-
-classifier = create_classifier('resnet', input_shape, nb_classes, output_directory)
-classifier.fit(x_train, y_train, x_test, y_test, y_true)
-
 classifier = create_classifier('cnn', input_shape, nb_classes, output_directory)
 classifier.fit(x_train, y_train, x_test, y_test, y_true)
 
-classifier = create_classifier('encoder', input_shape, nb_classes, output_directory)
-classifier.fit(x_train, y_train, x_test, y_test, y_true)
-
-classifier = create_classifier('fcn', input_shape, nb_classes, output_directory)
-classifier.fit(x_train, y_train, x_test, y_test, y_true)
+# classifier = create_classifier('inception', input_shape, nb_classes, output_directory)
+# classifier.fit(x_train, y_train, x_test, y_test, y_true)
+#
+# classifier = create_classifier('resnet', input_shape, nb_classes, output_directory)
+# classifier.fit(x_train, y_train, x_test, y_test, y_true)
+#
+# classifier = create_classifier('encoder', input_shape, nb_classes, output_directory)
+# classifier.fit(x_train, y_train, x_test, y_test, y_true)
+#
+# classifier = create_classifier('fcn', input_shape, nb_classes, output_directory)
+# classifier.fit(x_train, y_train, x_test, y_test, y_true)
