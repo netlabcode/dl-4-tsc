@@ -5,6 +5,8 @@ from utils.utils import transform_mts_to_ucr_format
 from utils.utils import visualize_filter
 from utils.utils import viz_for_survey_paper
 from utils.utils import viz_cam
+from classifiers.inception import Classifier_INCEPTION
+
 import os
 import numpy as np
 import sys
@@ -20,35 +22,6 @@ import tensorflow.keras as keras
 import tensorflow as tf
 import time
 from tensorflow.keras.callbacks import TensorBoard
-
-
-
-def fit_classifier():
-    x_train = datasets_dict[dataset_name][0]
-    y_train = datasets_dict[dataset_name][1]
-    x_test = datasets_dict[dataset_name][2]
-    y_test = datasets_dict[dataset_name][3]
-
-    nb_classes = len(np.unique(np.concatenate((y_train, y_test), axis=0)))
-
-    # transform the labels from integers to one hot vectors
-    enc = sklearn.preprocessing.OneHotEncoder(categories='auto')
-    enc.fit(np.concatenate((y_train, y_test), axis=0).reshape(-1, 1))
-    y_train = enc.transform(y_train.reshape(-1, 1)).toarray()
-    y_test = enc.transform(y_test.reshape(-1, 1)).toarray()
-
-    # save orignal y because later we will use binary
-    y_true = np.argmax(y_test, axis=1)
-
-    if len(x_train.shape) == 2:  # if univariate
-        # add a dimension to make it multivariate with one dimension 
-        x_train = x_train.reshape((x_train.shape[0], x_train.shape[1], 1))
-        x_test = x_test.reshape((x_test.shape[0], x_test.shape[1], 1))
-
-    input_shape = x_train.shape[1:]
-    classifier = create_classifier(classifier_name, input_shape, nb_classes, output_directory)
-
-    classifier.fit(x_train, y_train, x_test, y_test, y_true)
 
 
 def create_classifier(classifier_name, input_shape, nb_classes, output_directory, verbose=False):
@@ -128,17 +101,143 @@ def cnn(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y
 
     model.save(output_directory+"/trained/"+model_name)
 
+def resnet(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y_train, x_test, y_test, verbose=False, build=True):
+
+    input_layer = keras.layers.Input(input_shape)
+
+    n_feature_maps = 64
+
+    conv_x = keras.layers.Conv1D(filters=n_feature_maps, kernel_size=8, padding='same')(input_layer)
+    conv_x = keras.layers.BatchNormalization()(conv_x)
+    conv_x = keras.layers.Activation('relu')(conv_x)
+
+    conv_y = keras.layers.Conv1D(filters=n_feature_maps, kernel_size=5, padding='same')(conv_x)
+    conv_y = keras.layers.BatchNormalization()(conv_y)
+    conv_y = keras.layers.Activation('relu')(conv_y)
+
+    conv_z = keras.layers.Conv1D(filters=n_feature_maps, kernel_size=3, padding='same')(conv_y)
+    conv_z = keras.layers.BatchNormalization()(conv_z)
+
+    # expand channels for the sum
+    shortcut_y = keras.layers.Conv1D(filters=n_feature_maps, kernel_size=1, padding='same')(input_layer)
+    shortcut_y = keras.layers.BatchNormalization()(shortcut_y)
+
+    output_block_1 = keras.layers.add([shortcut_y, conv_z])
+    output_block_1 = keras.layers.Activation('relu')(output_block_1)
+
+    # BLOCK 2
+
+    conv_x = keras.layers.Conv1D(filters=n_feature_maps * 2, kernel_size=8, padding='same')(output_block_1)
+    conv_x = keras.layers.BatchNormalization()(conv_x)
+    conv_x = keras.layers.Activation('relu')(conv_x)
+
+    conv_y = keras.layers.Conv1D(filters=n_feature_maps * 2, kernel_size=5, padding='same')(conv_x)
+    conv_y = keras.layers.BatchNormalization()(conv_y)
+    conv_y = keras.layers.Activation('relu')(conv_y)
+
+    conv_z = keras.layers.Conv1D(filters=n_feature_maps * 2, kernel_size=3, padding='same')(conv_y)
+    conv_z = keras.layers.BatchNormalization()(conv_z)
+
+    # expand channels for the sum
+    shortcut_y = keras.layers.Conv1D(filters=n_feature_maps * 2, kernel_size=1, padding='same')(output_block_1)
+    shortcut_y = keras.layers.BatchNormalization()(shortcut_y)
+
+    output_block_2 = keras.layers.add([shortcut_y, conv_z])
+    output_block_2 = keras.layers.Activation('relu')(output_block_2)
+
+    # BLOCK 3
+
+    conv_x = keras.layers.Conv1D(filters=n_feature_maps * 2, kernel_size=8, padding='same')(output_block_2)
+    conv_x = keras.layers.BatchNormalization()(conv_x)
+    conv_x = keras.layers.Activation('relu')(conv_x)
+
+    conv_y = keras.layers.Conv1D(filters=n_feature_maps * 2, kernel_size=5, padding='same')(conv_x)
+    conv_y = keras.layers.BatchNormalization()(conv_y)
+    conv_y = keras.layers.Activation('relu')(conv_y)
+
+    conv_z = keras.layers.Conv1D(filters=n_feature_maps * 2, kernel_size=3, padding='same')(conv_y)
+    conv_z = keras.layers.BatchNormalization()(conv_z)
+
+    # no need to expand channels because they are equal
+    shortcut_y = keras.layers.BatchNormalization()(output_block_2)
+
+    output_block_3 = keras.layers.add([shortcut_y, conv_z])
+    output_block_3 = keras.layers.Activation('relu')(output_block_3)
+
+    # FINAL
+
+    gap_layer = keras.layers.GlobalAveragePooling1D()(output_block_3)
+
+    output_layer = keras.layers.Dense(nb_classes, activation='softmax')(gap_layer)
+
+    model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+
+    model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(),
+                  metrics=['accuracy'])
+
+    reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.5, patience=50, min_lr=0.0001)
+
+    print(model.summary())
+
+    logs = os.path.join(output_directory, "logs/" + model_name)
+
+    callback_log = TensorBoard(
+        log_dir=logs,
+        histogram_freq=0, write_graph=True, write_grads=False, write_images=False)
+
+    history = model.fit(x=x_train, y=y_train,
+                        epochs=epoch,
+                        validation_data=(x_test, y_test),
+                        callbacks=callback_log)
+
+    model.save(output_directory + "/trained/" + model_name)
+
+def incp(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y_train, x_test, y_test, verbose=False, build=True):
+
+    input_layer = keras.layers.Input(input_shape)
+
+    verbose = False
+    build = True
+    batch_size = 64
+    lr = 0.001,
+    nb_filters = 32
+    use_residual = True
+    use_bottleneck = True
+    depth = 6
+    kernel_size = 41
+
+    x = input_layer
+    input_res = input_layer
+
+    A = Classifier_INCEPTION( output_directory, input_shape, nb_classes)
+    #model = Classifier_INCEPTION.build_model(input_shape,nb_classes)
+
+    model = A.build_model(input_shape, nb_classes)
 
 
+    print(model.summary())
+
+    logs = os.path.join(output_directory, "logs/"+model_name)
+
+    callback_log = TensorBoard(
+        log_dir=logs,
+        histogram_freq=0, write_graph=True, write_grads=False, write_images=False)
+
+    history = model.fit(x=x_train, y=y_train,
+                        epochs=epoch,
+                        validation_data=(x_test, y_test),
+                        callbacks=callback_log)
+
+    model.save(output_directory+"/trained/"+model_name)
 
 ############################################### main
 
-data = pd.read_csv("data/creditcard-small.csv")
+data = pd.read_csv("data/creditcard-small-2.csv")
 output_directory = os.getcwd()
 output_directory = os.path.join(output_directory,"out")
 
-#X_sequence, y = generate_data(data.loc[:, "V1":"V28"].values, data.Class)
-X_sequence, y = generate_data(data.loc[:, "V1"].values, data.Class)
+X_sequence, y = generate_data(data.loc[:, "V1":"V28"].values, data.Class)
+#X_sequence, y = generate_data(data.loc[:, "V1"].values, data.Class)
 
 training_size = int(len(X_sequence) * 0.7)
 x_train, y_train = X_sequence[:training_size], y[:training_size]
@@ -163,10 +262,9 @@ input_shape = x_train.shape[1:]
 
 epoch=10
 #model_name = 'optimal-NN'
-cnn(output_directory,input_shape, nb_classes,epoch, "optimal", x_train, y_train, x_test, y_test)
-
-#classifier = create_classifier('cnn', input_shape, nb_classes, output_directory)
-#classifier.fit(x_train, y_train, x_test, y_test, y_true)
+#cnn(output_directory,input_shape, nb_classes,epoch, "optimal", x_train, y_train, x_test, y_test)
+#resnet(output_directory,input_shape, nb_classes,epoch, "resnet", x_train, y_train, x_test, y_test)
+incp(output_directory,input_shape, nb_classes,epoch, "inception", x_train, y_train, x_test, y_test)
 
 # classifier = create_classifier('inception', input_shape, nb_classes, output_directory)
 # classifier.fit(x_train, y_train, x_test, y_test, y_true)

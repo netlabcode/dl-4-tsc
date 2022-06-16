@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="04dbebc4-4f95-4cf3-bef6-ccfb16055e07" name="Default Changelist" comment="test setup 5 classier">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="04dbebc4-4f95-4cf3-bef6-ccfb16055e07" name="Default Changelist" comment="modify code">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/cnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/cnn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/resnet.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/resnet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main_test2.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_test2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifiers/inception.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/inception.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main_test_mod.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_test_mod.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,7 +181,7 @@
       <workItem from="1579522466245" duration="26000" />
       <workItem from="1655307657290" duration="265000" />
       <workItem from="1655308984824" duration="2089000" />
-      <workItem from="1655365766572" duration="5644000" />
+      <workItem from="1655365766572" duration="9568000" />
     </task>
     <task id="LOCAL-00001" summary="test">
       <created>1655309048459</created>
@@ -214,7 +211,14 @@
       <option name="project" value="LOCAL" />
       <updated>1655310236384</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="modify code">
+      <created>1655382587543</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1655382587543</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -235,21 +239,11 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="test" />
     <MESSAGE value="test setup 5 classier" />
-    <option name="LAST_COMMIT_MESSAGE" value="test setup 5 classier" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main_test_mod.py</url>
-          <line>85</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="modify code" />
+    <option name="LAST_COMMIT_MESSAGE" value="modify code" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/dl_4_tsc$main_test_mod.coverage" NAME="main_test_mod Coverage Results" MODIFIED="1655382517870" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/dl_4_tsc$main_test_mod.coverage" NAME="main_test_mod Coverage Results" MODIFIED="1655386356398" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/dl_4_tsc$main_test.coverage" NAME="main_test Coverage Results" MODIFIED="1655379606269" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="masterDetails">

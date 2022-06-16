@@ -11,7 +11,7 @@ from utils.utils import save_test_duration
 class Classifier_INCEPTION:
 
     def __init__(self, output_directory, input_shape, nb_classes, verbose=False, build=True, batch_size=64, lr=0.001,
-                 nb_filters=32, use_residual=True, use_bottleneck=True, depth=6, kernel_size=41, nb_epochs=1500):
+                 nb_filters=32, use_residual=True, use_bottleneck=True, depth=6, kernel_size=41, nb_epochs=10):
 
         self.output_directory = output_directory
 
@@ -125,22 +125,22 @@ class Classifier_INCEPTION:
 
         duration = time.time() - start_time
 
-        self.model.save(self.output_directory + 'last_model.hdf5')
+        self.model.save(self.output_directory + 'inception')
 
-        y_pred = self.predict(x_val, y_true, x_train, y_train, y_val,
-                              return_df_metrics=False)
-
-        # save predictions
-        np.save(self.output_directory + 'y_pred.npy', y_pred)
-
-        # convert the predicted from binary to integer
-        y_pred = np.argmax(y_pred, axis=1)
-
-        df_metrics = save_logs(self.output_directory, hist, y_pred, y_true, duration)
-
-        keras.backend.clear_session()
-
-        return df_metrics
+        # y_pred = self.predict(x_val, y_true, x_train, y_train, y_val,
+        #                       return_df_metrics=False)
+        #
+        # # save predictions
+        # np.save(self.output_directory + 'y_pred.npy', y_pred)
+        #
+        # # convert the predicted from binary to integer
+        # y_pred = np.argmax(y_pred, axis=1)
+        #
+        # df_metrics = save_logs(self.output_directory, hist, y_pred, y_true, duration)
+        #
+        # keras.backend.clear_session()
+        #
+        # return df_metrics
 
     def predict(self, x_test, y_true, x_train, y_train, y_test, return_df_metrics=True):
         start_time = time.time()
