@@ -6,6 +6,10 @@ from utils.utils import visualize_filter
 from utils.utils import viz_for_survey_paper
 from utils.utils import viz_cam
 from classifiers.inception import Classifier_INCEPTION
+from classifiers.fcn import Classifier_FCN
+from classifiers.mlp import Classifier_MLP
+from classifiers.mcnn import Classifier_MCNN
+from classifiers.mcdcnn import Classifier_MCDCNN
 
 import os
 import numpy as np
@@ -192,22 +196,7 @@ def resnet(output_directory, input_shape, nb_classes, epoch, model_name, x_train
 
     model.save(output_directory + "/trained/" + model_name)
 
-def incp(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y_train, x_test, y_test, verbose=False, build=True):
-
-    input_layer = keras.layers.Input(input_shape)
-
-    verbose = False
-    build = True
-    batch_size = 64
-    lr = 0.001,
-    nb_filters = 32
-    use_residual = True
-    use_bottleneck = True
-    depth = 6
-    kernel_size = 41
-
-    x = input_layer
-    input_res = input_layer
+def inception(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y_train, x_test, y_test, verbose=False, build=True):
 
     A = Classifier_INCEPTION( output_directory, input_shape, nb_classes)
     #model = Classifier_INCEPTION.build_model(input_shape,nb_classes)
@@ -230,14 +219,109 @@ def incp(output_directory, input_shape, nb_classes, epoch, model_name, x_train, 
 
     model.save(output_directory+"/trained/"+model_name)
 
-############################################### main
+def fcn(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y_train, x_test, y_test, verbose=False, build=True):
 
-data = pd.read_csv("data/creditcard-small-2.csv")
+    A = Classifier_INCEPTION( output_directory, input_shape, nb_classes)
+    #model = Classifier_INCEPTION.build_model(input_shape,nb_classes)
+
+    model = A.build_model(input_shape, nb_classes)
+
+
+    print(model.summary())
+
+    logs = os.path.join(output_directory, "logs/"+model_name)
+
+    callback_log = TensorBoard(
+        log_dir=logs,
+        histogram_freq=0, write_graph=True, write_grads=False, write_images=False)
+
+    history = model.fit(x=x_train, y=y_train,
+                        epochs=epoch,
+                        validation_data=(x_test, y_test),
+                        callbacks=callback_log)
+
+    model.save(output_directory+"/trained/"+model_name)
+
+def mlp(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y_train, x_test, y_test, verbose=False, build=True):
+
+    A = Classifier_MLP( output_directory, input_shape, nb_classes)
+
+    model = A.build_model(input_shape, nb_classes)
+
+
+    print(model.summary())
+
+    logs = os.path.join(output_directory, "logs/"+model_name)
+
+    callback_log = TensorBoard(
+        log_dir=logs,
+        histogram_freq=0, write_graph=True, write_grads=False, write_images=False)
+
+    history = model.fit(x=x_train, y=y_train,
+                        epochs=epoch,
+                        validation_data=(x_test, y_test),
+                        callbacks=callback_log)
+
+    model.save(output_directory+"/trained/"+model_name)
+
+def mcdcnn(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y_train, x_test, y_test, verbose=False, build=True):
+
+    A = Classifier_MCDCNN( output_directory, input_shape, nb_classes)
+    model = A.build_model(input_shape, nb_classes)
+
+
+    print(model.summary())
+
+    logs = os.path.join(output_directory, "logs/"+model_name)
+
+    # callback_log = TensorBoard(
+    #     log_dir=logs,
+    #     histogram_freq=0, write_graph=True, write_grads=False, write_images=False)
+    #
+    # history = model.fit(x=x_train, y=y_train,
+    #                     epochs=epoch,
+    #                     validation_data=(x_test, y_test),
+    #                     callbacks=callback_log)
+
+    model.save(output_directory+"/trained/"+model_name)
+
+
+############################################### main
+def combineData():
+    datas = pd.DataFrame()
+    labels = pd.DataFrame()
+
+    data1 = pd.read_csv("data/gcn/NO_error.csv")
+    data2 = pd.read_csv("data/gcn/FA_error.csv")
+    data3 = pd.read_csv("data/gcn/SE_error.csv")
+
+    label1 = pd.read_csv("data/gcn/NO_label.csv")
+    label1 = label1.iloc[:,0]
+    label2 = pd.read_csv("data/gcn/FA_label.csv")
+    label2 = label2.iloc[:,0]
+    label3 = pd.read_csv("data/gcn/FA_label.csv")
+    label3 = label3.iloc[:,0]
+
+    datas = datas.append(data1)
+    datas = datas.append(data2)
+    datas = datas.append(data3)
+
+    labels = labels.append(label1)
+    labels = labels.append(label2)
+    labels = labels.append(label3)
+
+    combine = datas + labels
+
+    combine.to_csv('combined2.csv', index=False, header=False)
+
+data = pd.read_csv("data/combined_err.csv")
+print(data.shape)
+
 output_directory = os.getcwd()
 output_directory = os.path.join(output_directory,"out")
 
-X_sequence, y = generate_data(data.loc[:, "V1":"V28"].values, data.Class)
-#X_sequence, y = generate_data(data.loc[:, "V1"].values, data.Class)
+#X_sequence, y = generate_data(data.loc[:, "V1":"V25"].values, data.Class)
+X_sequence, y = generate_data(data.iloc[:, :38].values, data.iloc[:,39])
 
 training_size = int(len(X_sequence) * 0.7)
 x_train, y_train = X_sequence[:training_size], y[:training_size]
@@ -259,12 +343,15 @@ if len(x_train.shape) == 2:  # if univariate
     x_test = x_test.reshape((x_test.shape[0], x_test.shape[1], 1))
 
 input_shape = x_train.shape[1:]
+epoch=100
+print(input_shape, nb_classes)
 
-epoch=10
-#model_name = 'optimal-NN'
-#cnn(output_directory,input_shape, nb_classes,epoch, "optimal", x_train, y_train, x_test, y_test)
-#resnet(output_directory,input_shape, nb_classes,epoch, "resnet", x_train, y_train, x_test, y_test)
-incp(output_directory,input_shape, nb_classes,epoch, "inception", x_train, y_train, x_test, y_test)
+cnn(output_directory,input_shape, nb_classes,epoch, "cnn", x_train, y_train, x_test, y_test)
+resnet(output_directory,input_shape, nb_classes,epoch, "resnet", x_train, y_train, x_test, y_test)
+inception(output_directory,input_shape, nb_classes,epoch, "inception", x_train, y_train, x_test, y_test)
+fcn(output_directory,input_shape, nb_classes,epoch, "fcn", x_train, y_train, x_test, y_test)
+mlp(output_directory,input_shape, nb_classes,epoch, "mlp", x_train, y_train, x_test, y_test)
+
 
 # classifier = create_classifier('inception', input_shape, nb_classes, output_directory)
 # classifier.fit(x_train, y_train, x_test, y_test, y_true)
