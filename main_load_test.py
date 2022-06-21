@@ -26,6 +26,8 @@ import tensorflow.keras as keras
 import tensorflow as tf
 import time
 from tensorflow.keras.callbacks import TensorBoard
+from sklearn.metrics import confusion_matrix, classification_report
+from imblearn.over_sampling import SMOTE
 
 
 def create_classifier(classifier_name, input_shape, nb_classes, output_directory, verbose=False):
@@ -327,12 +329,18 @@ training_size = int(len(X_sequence) * 0.7)
 x_train, y_train = X_sequence[:training_size], y[:training_size]
 x_test, y_test = X_sequence[training_size:], y[training_size:]
 
+
+
 nb_classes = len(np.unique(np.concatenate((y_train, y_test), axis=0)))
 
 enc = sklearn.preprocessing.OneHotEncoder(categories='auto')
 enc.fit(np.concatenate((y_train, y_test), axis=0).reshape(-1, 1))
 y_train = enc.transform(y_train.reshape(-1, 1)).toarray()
 y_test = enc.transform(y_test.reshape(-1, 1)).toarray()
+
+# Select all data
+x_all = X_sequence
+y_all = enc.transform(y.reshape(-1, 1)).toarray()
 
 # save orignal y because later we will use binary
 y_true = np.argmax(y_test, axis=1)
@@ -346,11 +354,38 @@ input_shape = x_train.shape[1:]
 epoch=100
 print(input_shape, nb_classes)
 
-cnn(output_directory,input_shape, nb_classes,epoch, "cnn", x_train, y_train, x_test, y_test)
-resnet(output_directory,input_shape, nb_classes,epoch, "resnet", x_train, y_train, x_test, y_test)
-inception(output_directory,input_shape, nb_classes,epoch, "inception", x_train, y_train, x_test, y_test)
-fcn(output_directory,input_shape, nb_classes,epoch, "fcn", x_train, y_train, x_test, y_test)
-mlp(output_directory,input_shape, nb_classes,epoch, "mlp", x_train, y_train, x_test, y_test)
+
+print(x_all.shape, y_all.shape)
+
+
+# model_path = "out/trained/inception"
+#
+# model = keras.models.load_model(model_path)
+#
+# model.summary()
+#
+# y_pred_all = model.predict(x_all)
+#
+# print(y_all.shape, y_pred_all.shape)
+#
+# y_pred_all = np.argmax(y_pred_all, axis=1)
+# y_all = np.argmax(y_all, axis=1)
+#
+# print(y_all.shape, y_pred_all.shape)
+#
+# print(confusion_matrix(y_pred_all, y_all))
+#
+# print(classification_report(y_pred_all, y_all))
+
+
+
+#print(classification_report(y_test, y_pred))
+
+# cnn(output_directory,input_shape, nb_classes,epoch, "cnn", x_train, y_train, x_test, y_test)
+# resnet(output_directory,input_shape, nb_classes,epoch, "resnet", x_train, y_train, x_test, y_test)
+# inception(output_directory,input_shape, nb_classes,epoch, "inception", x_train, y_train, x_test, y_test)
+# fcn(output_directory,input_shape, nb_classes,epoch, "fcn", x_train, y_train, x_test, y_test)
+# mlp(output_directory,input_shape, nb_classes,epoch, "mlp", x_train, y_train, x_test, y_test)
 
 
 # classifier = create_classifier('inception', input_shape, nb_classes, output_directory)
