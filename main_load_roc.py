@@ -26,9 +26,9 @@ import tensorflow.keras as keras
 import tensorflow as tf
 import time
 from tensorflow.keras.callbacks import TensorBoard
-from sklearn.metrics import confusion_matrix, classification_report, roc_curve, roc_auc_score
+from sklearn.metrics import confusion_matrix, classification_report, roc_curve, roc_auc_score, auc
 from imblearn.over_sampling import SMOTE
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
 from yellowbrick.classifier import ROCAUC, classification_report
 
 
@@ -318,7 +318,7 @@ def combineData():
 
     combine.to_csv('combined2.csv', index=False, header=False)
 
-data = pd.read_csv("data/combined_pred.csv")
+data = pd.read_csv("data/combined_origin.csv")
 print(data.shape)
 
 output_directory = os.getcwd()
@@ -360,7 +360,7 @@ print(input_shape, nb_classes)
 print(x_all.shape, y_all.shape)
 
 
-model_path = "out/trained/inception"
+model_path = "out/trained/custom2"
 
 model = keras.models.load_model(model_path)
 
@@ -370,6 +370,52 @@ y_pred_all = model.predict(x_all)
 
 print(y_all.shape, y_pred_all.shape)
 
+# Compute ROC curve and ROC area for each class
+fpr = dict()
+tpr = dict()
+roc_auc = dict()
+
+for i in range(nb_classes):
+    fpr[i], tpr[i], _ = roc_curve(y_all[:,i],y_pred_all[:,i])
+    roc_auc[i] = auc(fpr[i], tpr[i])
+
+# Compute micro-average ROC curve and ROC area
+fpr["micro"], tpr["micro"], _ = roc_curve(y_all.ravel(), y_pred_all.ravel())
+roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+
+# Compute macro-average ROC curve and ROC area
+# First aggregate all false positive rates
+all_fpr = np.unique(np.concatenate([fpr[i] for i in range(nb_classes)]))
+# Then interpolate all ROC curves at this points
+mean_tpr = np.zeros_like(all_fpr)
+for i in range(nb_classes):
+    mean_tpr += np.interp(all_fpr, fpr[i], tpr[i])
+# Finally average it and compute AUC
+mean_tpr /= nb_classes
+fpr["macro"] = all_fpr
+tpr["macro"] = mean_tpr
+roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
+
+
+plt.figure()
+lw = 2
+
+plt.plot(fpr["micro"],tpr["micro"],label="micro-average ROC curve (area = {0:0.2f})".format(roc_auc["micro"]),color="deeppink",linestyle=":",linewidth=4,)
+#plot(fpr["macro"],tpr["macro"],label="macro-average ROC curve (area = {0:0.2f})".format(roc_auc["macro"]),color="navy",linestyle=":",linewidth=4,)
+
+# plt.plot( fpr[0], tpr[0], color="darkorange", lw=lw, label="ROC curve (area = %0.2f)" % roc_auc[0],)
+# plt.plot( fpr[1], tpr[1], lw=lw, label="ROC curve (area = %0.2f)" % roc_auc[1],)
+# plt.plot( fpr[2], tpr[2], lw=lw, label="ROC curve (area = %0.2f)" % roc_auc[2],)
+# plt.plot( fpr[3], tpr[3], lw=lw, label="ROC curve (area = %0.2f)" % roc_auc[3],)
+
+plt.plot([0, 1], [0, 1], color="navy", lw=lw, linestyle="--")
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("Receiver operating characteristic example")
+plt.legend(loc="lower right")
+plt.savefig('roc.png')
 
 y_pred_all = np.argmax(y_pred_all, axis=1)
 y_all = np.argmax(y_all, axis=1)
@@ -378,7 +424,6 @@ print(y_all.shape, y_pred_all.shape)
 
 print(confusion_matrix(y_pred_all, y_all))
 
-print(classification_report(y_pred_all, y_all))
 
 
 # visualizer = ROCAUC(model)

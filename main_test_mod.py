@@ -105,6 +105,49 @@ def cnn(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y
 
     model.save(output_directory+"/trained/"+model_name)
 
+
+def customModel(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y_train, x_test, y_test, verbose=False, build=True):
+
+    input_layer = keras.layers.Input(input_shape)
+
+    if input_shape[0] < 60:  # for italypowerondemand dataset
+        padding = 'same'
+
+    conv1 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(input_layer)
+    conv1 = keras.layers.BatchNormalization()(conv1)
+    conv1 = keras.layers.ReLU()(conv1)
+
+    conv2 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(conv1)
+    conv2 = keras.layers.BatchNormalization()(conv2)
+    conv2 = keras.layers.ReLU()(conv2)
+
+    conv3 = keras.layers.Conv1D(filters=64, kernel_size=3, padding="same")(conv2)
+    conv3 = keras.layers.BatchNormalization()(conv3)
+    conv3 = keras.layers.ReLU()(conv3)
+
+    gap = keras.layers.GlobalAveragePooling1D()(conv3)
+
+    output_layer = keras.layers.Dense(units=nb_classes, activation='softmax')(gap)
+
+    model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+
+    model.compile(loss='mean_squared_error', optimizer=keras.optimizers.Adam(), metrics=['accuracy'])
+
+    print(model.summary())
+
+    logs = os.path.join(output_directory, "logs/"+model_name)
+
+    callback_log = TensorBoard(
+        log_dir=logs,
+        histogram_freq=0, write_graph=True, write_grads=False, write_images=False)
+
+    history = model.fit(x=x_train, y=y_train,
+                        epochs=epoch,
+                        validation_data=(x_test, y_test),
+                        callbacks=callback_log)
+
+    model.save(output_directory+"/trained/"+model_name)
+
 def resnet(output_directory, input_shape, nb_classes, epoch, model_name, x_train, y_train, x_test, y_test, verbose=False, build=True):
 
     input_layer = keras.layers.Input(input_shape)
@@ -346,12 +389,13 @@ input_shape = x_train.shape[1:]
 epoch=100
 print(input_shape, nb_classes)
 
-cnn(output_directory,input_shape, nb_classes,epoch, "cnn", x_train, y_train, x_test, y_test)
-resnet(output_directory,input_shape, nb_classes,epoch, "resnet", x_train, y_train, x_test, y_test)
-inception(output_directory,input_shape, nb_classes,epoch, "inception", x_train, y_train, x_test, y_test)
-fcn(output_directory,input_shape, nb_classes,epoch, "fcn", x_train, y_train, x_test, y_test)
-mlp(output_directory,input_shape, nb_classes,epoch, "mlp", x_train, y_train, x_test, y_test)
+# cnn(output_directory,input_shape, nb_classes,epoch, "cnn", x_train, y_train, x_test, y_test)
+# resnet(output_directory,input_shape, nb_classes,epoch, "resnet", x_train, y_train, x_test, y_test)
+# inception(output_directory,input_shape, nb_classes,epoch, "inception", x_train, y_train, x_test, y_test)
+# fcn(output_directory,input_shape, nb_classes,epoch, "fcn", x_train, y_train, x_test, y_test)
+# mlp(output_directory,input_shape, nb_classes,epoch, "mlp", x_train, y_train, x_test, y_test)
 
+customModel(output_directory,input_shape, nb_classes,epoch, "custom2-origin", x_train, y_train, x_test, y_test)
 
 # classifier = create_classifier('inception', input_shape, nb_classes, output_directory)
 # classifier.fit(x_train, y_train, x_test, y_test, y_true)
